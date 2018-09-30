@@ -1,0 +1,223 @@
+= filabel
+:toc:
+:note-caption: :information_source:
+:warning-caption: :warning:
+
+
+Tool for labeling PRs at GitHub by globs.
+
+
+== Zadání úkolu
+
+Vaším úkolem za 5 bodů je vytvořit command line aplikaci pracující s GitHub API,
+pomocí knihoven http://docs.python-requests.org[requests] a
+http://click.pocoo.org[click].
+
+Aplikace slouží ke štítkování (labelování) Pull Requestů (PR) na GitHub podle
+souborů, které se mění. Příklad: Když vaše aplikace zjistí, že PR mění soubor
+`templates/cool.html`, nastaví štítek `templates`. Když zjistí, že mění soubor
+`README.rst`, nastaví štítek `docs` apod.
+
+== Konfigurace
+
+Aplikace používá 2 konfigurační soubory.
+V jednom z nich je token ke GitHub API,
+ve druhém jsou definice pravidel pro štítky.
+Oba jsou napsané ve formátu pro
+https://docs.python.org/3/library/configparser.html[configparser].
+
+credentials.cfg
+[source,ini]
+----
+[github]
+token=xxxxxxxxxxxxxxxxxxxxx
+----
+
+labels.cfg
+[source,ini]
+----
+[labels]
+frontend=
+    */templates/*
+    static/*
+backend=logic/*
+docs=
+    *.md
+    *.rst
+    *.adoc
+    LICENSE
+    docs/*
+----
+
+Kvůli zjednodušení uvažujte jen lowercase štítky (v příkladu `frontend`,
+`backend`, `docs`).
+Pravidla pro soubory jsou napsané pro funkci
+https://docs.python.org/3/library/fnmatch.html#fnmatch.fnmatch[fnmatch].
+Pozor, je jich potenciálně více (na každém řádku jedno pravidlo).
+
+== Rozhraní pro příkazovou řádku
+
+Soubor ke spuštění pojmenujte `filabel.py`.
+
+Při jeho spuštění s příkazem `--help` očekáváme nápovědu:
+
+[source]
+----
+Usage: filabel.py [OPTIONS] [REPOSLUGS]...
+
+  CLI tool for filename-pattern-based labeling of GitHub PRs
+
+Options:
+  -s, --state [open|closed|all]   Filter pulls by state.  [default: open]
+  -d, --delete-old / -D, --no-delete-old
+                                  Delete labels that do not match anymore.
+                                  [default: True]
+  -b, --base BRANCH               Filter pulls by base (PR target) branch
+                                  name.
+  -a, --config-auth FILENAME      File with authorization configuration.
+  -l, --config-labels FILENAME    File with labels configuration.
+  --help                          Show this message and exit.
+----
+
+Jednotlivé poziční argumenty říkají aplikaci, které repozitáře má zkontrolovat.
+Zadávají se ve formátu „reposlug“ (`uživatel/název` případně `organizace/název`).
+Aplikace projde všechny PR ve všech zadaných repozitářích a oštítkuje je podle
+zadaných pravidel.
+
+=== Přepínače
+
+`--state [open|closed|all]`::
+  Ve výchozím stavu se aplikace zabývá pouze otevřenými PR.
+  Pomocí tohoto přepínače to můžete změnit. Validní hodnoty jsou `open`,
+  `closed` a `all`. (GitHub API má na toto filtr.)
+
+`--delete-old`/`--no-delete-old`::
+  Pokud je zapnuto, staré štítky budou odstraněny. Ale *pozor*, budou
+  odstraněny pouze štítky, obsažené v konfiguraci. Aplikace nesmí odstranit
+  štítek, který „nezná“. Pokud je vypnuto, aplikace neodstraňuje žádné štítky,
+  pouze přidává nové. Ve výchozím stavu je zapnuto.
+  (GitHub API umí nastavit pouze cílový stav štítků, logika je zde na vás.)
+
+`--base BRANCH`::
+  Pokud je použito, aplikace zpracovává pouze PR proti zadané větvi.
+  Jinak zpracovává všechny. (GitHub API má na toto filtr.)
+
+`--config-auth`::
+  Cesta ke konfiguračnímu souboru s tokenem.
+
+`--config-labels`::
+  Cesta ke konfiguračnímu souboru s pravidly na aplikaci štítků.
+  Pro obě konfigurace může být použit stejný soubor.
+
+
+=== Výstup
+
+Aplikace píše na výstup barevný text v následujícím formátu:
+
+image::screenshot.png[Screenshot]
+
+Nápisy `REPO`, `PR` a `OK` jsou tlustě. Nápis `OK` je zeleně.
+Štítky jsou zelené (ty s plusem, nově přidané), červené (ty s mínusem,
+nově odebrané) nebo výchozí barvou (ty s rovnítkem, aplikaci známé štítky,
+které tam již byly).
+
+Repozitáře jsou srovnány podle toho, jak je uživatel zadal.
+PR jsou srovnány podle toho, jak je ve výchozím stavu vrací GitHub API,
+a uvozeny 2 mezerami.
+Štítky jsou srovnány abecedně (podle názvu) a uvozeny 4 mezerami,
+symbolem a 1 mezerou.
+
+=== Chyby
+
+V případě, že uživatel nezadá přepínač na konfigurační soubory, vypište
+chybovou hlášku na standardní chybový výstup a ukončete aplikaci kódem 1.
+
+[source]
+Auth configuration not supplied!
+
+[source]
+Labels configuration not supplied!
+
+V případě, že konfigurace není použitelná, zachovejte se stejně:
+
+[source]
+Auth configuration not usable!
+
+[source]
+Labels configuration not usable!
+
+V případě, že jakýkoliv reposlug není validní (nelze podle jednoho lomítka
+rozdělit na 2 části), zachovejte se stejně (skončete ihned):
+
+[source]
+Reposlug xxxx not valid!
+
+V případě, že nějaký repozitář nelze zpracovat (např. neexistuje), místo
+zeleného OK se u něj vypíše červené FAIL. Seznam PR u něj logicky nebude.
+
+V případě, že se štítkování nějaké PR jakkoliv nezdaří,
+vypíše se také červené FAIL.
+*Pozor,* zda máte práva přidat štítky, se dozvíte jedině tak, že ověříte,
+že se to podařilo. GitHub API vrací při změně štítků i informace o štítkách.
+
+Barevné výpisy FAIL piště na standardní výstup.
+
+== Testy
+
+K úloze existuje sada testů.
+Pro jejich spuštění nainstalujte do virtuálního prostředí balík `pytest`.
+
+Testy vyžadují určitý setup repozitářů. Pro jeho vytvoření použijte skript
+`test_environment/setup.sh`. Je třeba nastavit proměnné prostředí
+`GH_TOKEN` a `GH_USER`.
+Token musí příslušet danému uživateli a mít scope `repo`.
+
+Skript využívá program https://hub.github.com/[hub],
+který si *nejprve zprovozněte*.
+
+Testy jsou napsané tak, že pokud váš program funguje dle zadání,
+dají se pouštět opakovaně. Pokud ale dle zadání nefunguje,
+je třeba smazat všechny štítky.
+Alternativně můžete testovací repozitáře smazat pomocí skriptu
+`test_environment/delete.sh` (potřeba scope `delete_repo`) a vytvořit znovu.
+Vytváření repozitářů a Pull Requestů může trvat jednotky minut.
+
+Pro spuštění testů nastavte stejné proměnné prostředí (`GH_TOKEN` a `GH_USER`).
+
+[source,console]
+$ export GH_USER=anicka
+$ export GH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+$ python -m pytest -v test
+
+Testy v souboru test_radioactive_waste.py trvají dlouho a mají potenciál
+vyřadit vás na hodinu z přístupu ke GitHub API.
+Když ladíte ostatní testy, doporučujeme je vypínat pomocí přepínače `-k`:
+
+[source,console]
+$ python -m pytest -v -k "not radioactive" test
+
+Testy předpokládají, že se štítky mění podle běhu předchozích testů.
+Nepouštějte tedy jednotlivé testy samostatně.
+
+Testy si můžete zkopírovat k sobě do repozitáře, považujte je za Public Domain.
+Nepřidejte ale do repozitáře omylem soubor `labels.real.cfg`,
+který se v průběhu testů dočasně vytváří a obsahuje váš token.
+
+NOTE: Testy proti živému API, navíc napsané tak,
+že se jednotlivé testy navzájem ovlivňují, jsou ukázkou toho,
+jak se to nemá dělat.
+Pokud narazíte v testech na problém, nebo nevíte jak dál, zeptejte se.
+K tomu, jak se to dělá pořádně, se v předmětu dostaneme později.
+
+WARNING: Testy netestují barevnost výstupu. I neobarvený výstup projde testy.
+Barevnost kontrolujte očima.
+
+== Odevzdání úkolu
+
+Odkaz na repozitář s aplikací nám pošlete e-mailem.
+Pro odevzdání v repozitáři nastavte tag `v0.1`.
+
+Termín odevzdání je u této úlohy mimořádně v pondělí (včetně) za 19 dní,
+termín je tedy shodný s příští úlohou.
+Důrazně však doporučujeme odevzdat ji dříve,
+jelikož další úloha na tuto navazuje a chyb v začátku se špatně zbavuje.
