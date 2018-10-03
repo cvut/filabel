@@ -162,6 +162,9 @@ vypíše se také červené FAIL.
 
 Barevné výpisy FAIL piště na standardní výstup.
 
+NOTE: Přepínače `--config-auth` a `--config-labels`
+můžete nastavit jako povinné.
+
 == Testy
 
 K úloze existuje sada testů.
