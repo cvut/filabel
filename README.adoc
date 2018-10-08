@@ -153,7 +153,7 @@ rozdělit na 2 části), zachovejte se stejně (skončete ihned):
 Reposlug xxxx not valid!
 
 V případě, že nějaký repozitář nelze zpracovat (např. neexistuje), místo
-zeleného OK se u něj vypíše červené FAIL. Seznam PR u něj logicky nebude.
+zeleného OK se u něj vypíše tučné červené FAIL. Seznam PR u něj logicky nebude.
 
 V případě, že se štítkování nějaké PR jakkoliv nezdaří,
 vypíše se také červené FAIL.
