@@ -83,12 +83,25 @@ Při nastavování webhooku na GitHubu použijte stejný secret jako při nasazo
 
 == Automatické testy
 
-Žádné nové automatické testy nyní nejsou.
-Ujistěte se, že vaše nasazená aplikace funguje, jak má,
-a že testy z minula stále prochází.
+Testy z minula stále musí procházet.
+Existuje i několik nových testů v souboru `test_web_smoke.py`.
 
-K minulému zadání existuje sada testů.
-Pro jejich spuštění nainstalujte do virtuálního prostředí balík `pytest`.
+Pro spuštění pouze nových testů můžete použít:
+
+[source,console]
+$ python -m pytest -v -k web test
+
+Pro nové testy není třeba speciální setup z minula.
+
+WARNING: Testy **netestují hlavní funkcionalitu aplikace**,
+ale pouze přidružené věci, jako importovatelnost,
+přítomnost usernamu na hlavní stránce,
+ping, ověření „secret“.
+Ujistěte se, že vaše nasazená aplikace funguje, jak má.
+
+Následuje text z minula, který stále platí:
+
+Pro spuštění testů nainstalujte do virtuálního prostředí balík `pytest`.
 
 Testy vyžadují určitý setup repozitářů. Pro jeho vytvoření použijte skript
 `test_environment/setup.sh`. Je třeba nastavit proměnné prostředí
