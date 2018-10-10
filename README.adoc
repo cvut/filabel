@@ -22,7 +22,7 @@ abychom mohli chování vyzkoušet zasláním Pull Requestu do vašeho repozitá
 
 Aplikace musí přijímat na adrese `/` GitHub webhooky (metoda POST).
 Aplikace musí správně zpracovat https://developer.github.com/webhooks/[webhooky]
-`pull_request` a `ping`.
+`pull_request` a `ping` ve formátu JSON.
 
 Na `ping` aplikace správně odpoví dle dokumentace.
 
