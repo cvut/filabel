@@ -33,6 +33,8 @@ Aplikace musí podporovat zabezpečení pomocí webhook secret (viz dále).
 
 Na adrese `/` se při požadavku GET bude nacházet jednoduchá HTML stránka,
 ze které bude jasné, jaká pravidla platí a jaký uživatel bude štítky nastavovat.
+Uživatelské jméno se na stránce zobrazí podle použitého tokenu,
+není zadrátované do kódu aplikace nebo šablony.
 
 Musíte využít šablonu.
 Nebudeme hodnotit vzhled stránky,
