@@ -6,8 +6,17 @@ config_env = f'{config("auth.real.cfg")}:{config("labels.empty.cfg")}'
 
 
 def _import_app():
-    from filabel import app
-    return app
+    import filabel
+    if hasattr(filabel, 'app'):
+        return filabel.app
+    elif hasattr(filabel, 'create_app'):
+        return filabel.create_app(None)
+    else:
+        raise RuntimeError("Can't find a Flask app.\n"
+                           "Either instantiate `filabel.app` variable "
+                           "or implement `filabel.create_app(dummy)` function.\n"
+                           "See http://flask.pocoo.org/docs/1.0/patterns/appfactories/ "
+                           "for additional information.")
 
 
 def _test_app():
