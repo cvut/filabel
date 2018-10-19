@@ -203,7 +203,7 @@ Testy předpokládají, že se štítky mění podle běhu předchozích testů.
 Nepouštějte tedy jednotlivé testy samostatně.
 
 Testy si můžete zkopírovat k sobě do repozitáře, považujte je za Public Domain.
-Nepřidejte ale do repozitáře omylem soubor `labels.real.cfg`,
+Nepřidejte ale do repozitáře omylem soubor `auth.real.cfg`,
 který se v průběhu testů dočasně vytváří a obsahuje váš token.
 
 NOTE: Testy proti živému API, navíc napsané tak,
