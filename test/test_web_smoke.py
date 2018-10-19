@@ -30,7 +30,7 @@ def _test_app():
 def test_app_imports():
     with env(FILABEL_CONFIG=config_env):
         app = _import_app()
-        assert type(app) == flask.Flask
+        assert isinstance(app, flask.Flask)
 
 
 def test_app_get_has_username():
