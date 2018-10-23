@@ -57,6 +57,15 @@ def test_invalid_repolsug():
     assert cp.stderr == 'Reposlug foobar not valid!\n'
 
 
+def test_invalid_repolsug_when_m():
+    cp = run(f'--config-labels "{config("labels.empty.cfg")}" '
+             f'--config-auth "{config("auth.fff.cfg")}" '
+             'foobar', module=True)
+    assert cp.returncode != 0
+    assert not cp.stdout
+    assert cp.stderr == 'Reposlug foobar not valid!\n'
+
+
 def test_invalid_second_repolsug():
     cp = run(f'--config-labels "{config("labels.empty.cfg")}" '
              f'--config-auth "{config("auth.fff.cfg")}" '

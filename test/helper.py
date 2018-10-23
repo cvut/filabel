@@ -8,9 +8,13 @@ import subprocess
 import sys
 
 
-def run(line, **kwargs):
-    print('$ python filabel.py', line)
-    command = [sys.executable, 'filabel.py'] + shlex.split(line)
+def run(line, module=False, **kwargs):
+    if module:
+        print('$ python -m filabel', line)
+        command = [sys.executable, '-m', 'filabel'] + shlex.split(line)
+    else:
+        print('$ filabel', line)
+        command = ['filabel'] + shlex.split(line)
     return subprocess.run(command,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
