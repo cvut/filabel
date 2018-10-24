@@ -3,172 +3,107 @@
 :note-caption: :information_source:
 :warning-caption: :warning:
 
-
 Tool for labeling PRs at GitHub by globs.
 
 
-== Zadání úkolu
+== Zadání úkolu 2
 
-Vaším úkolem za 5 bodů je vytvořit command line aplikaci pracující s GitHub API,
-pomocí knihoven http://docs.python-requests.org[requests] a
-http://click.pocoo.org[click].
+Vaším úkolem za 5 bodů je rozšířit CLI  aplikaci z minulé úlohy o webové rozhraní.
+Stávající funkcionalita ale musí být zachována,
+mimo původní aplikace půjde tedy navíc spustit web server a to pomocí `flask run`.
 
-Aplikace slouží ke štítkování (labelování) Pull Requestů (PR) na GitHub podle
-souborů, které se mění. Příklad: Když vaše aplikace zjistí, že PR mění soubor
-`templates/cool.html`, nastaví štítek `templates`. Když zjistí, že mění soubor
-`README.rst`, nastaví štítek `docs` apod.
+Výslednou aplikaci nasaďte na PythonAnywhere, nebo jiný veřejný WSGI hosting.
+Odkaz na běžící aplikaci a repozitář nám pošlete e-mailem.
 
-== Konfigurace
+Nasazenou aplikaci nastavte tak,
+abychom mohli chování vyzkoušet zasláním Pull Requestu do vašeho repozitáře.
 
-Aplikace používá 2 konfigurační soubory.
-V jednom z nich je token ke GitHub API,
-ve druhém jsou definice pravidel pro štítky.
-Oba jsou napsané ve formátu pro
-https://docs.python.org/3/library/configparser.html[configparser].
+== Specifikace
 
-credentials.cfg
-[source,ini]
-----
-[github]
-token=xxxxxxxxxxxxxxxxxxxxx
-----
+Aplikace musí přijímat na adrese `/` GitHub webhooky (metoda POST).
+Aplikace musí správně zpracovat https://developer.github.com/webhooks/[webhooky]
+`pull_request` a `ping` ve formátu JSON.
 
-labels.cfg
-[source,ini]
-----
-[labels]
-frontend=
-    */templates/*
-    static/*
-backend=logic/*
-docs=
-    *.md
-    *.rst
-    *.adoc
-    LICENSE
-    docs/*
-----
+Na `ping` aplikace správně odpoví dle dokumentace.
 
-Kvůli zjednodušení uvažujte jen lowercase štítky (v příkladu `frontend`,
-`backend`, `docs`).
-Pravidla pro soubory jsou napsané pro funkci
-https://docs.python.org/3/library/fnmatch.html#fnmatch.fnmatch[fnmatch].
-Pozor, je jich potenciálně více (na každém řádku jedno pravidlo).
+Na `pull_request` aplikace také správně odpoví dle dokumentace,
+navíc nastaví správně štítky, dle konfiguračního souboru a zadání minulé úlohy.
 
-== Rozhraní pro příkazovou řádku
+Aplikace musí podporovat zabezpečení pomocí webhook secret (viz dále).
 
-Soubor ke spuštění pojmenujte `filabel.py`.
+Na adrese `/` se při požadavku GET bude nacházet jednoduchá HTML stránka,
+ze které bude jasné, jaká pravidla platí a jaký uživatel bude štítky nastavovat.
+Uživatelské jméno se na stránce zobrazí podle použitého tokenu,
+není zadrátované do kódu aplikace nebo šablony.
 
-Při jeho spuštění s příkazem `--help` očekáváme nápovědu:
+Musíte využít šablonu.
+Nebudeme hodnotit vzhled stránky,
+ale využijte HTML pro prezentaci informací.
+Vydumpování Python slovníku do `<pre>` boxu není dostačující.
+Pokud si nejste jisti, použijte zanořené seznamy (štítek: pravidla).
 
-[source]
-----
-Usage: filabel.py [OPTIONS] [REPOSLUGS]...
+=== Spouštění aplikace
 
-  CLI tool for filename-pattern-based labeling of GitHub PRs
+Aplikace se musí dát spustit pomocí příkazu `flask run`
+a to nastavením proměnné prostředí `FLASK_APP` na `filabel.py`.
 
-Options:
-  -s, --state [open|closed|all]   Filter pulls by state.  [default: open]
-  -d, --delete-old / -D, --no-delete-old
-                                  Delete labels that do not match anymore.
-                                  [default: True]
-  -b, --base BRANCH               Filter pulls by base (PR target) branch
-                                  name.
-  -a, --config-auth FILENAME      File with authorization configuration.
-  -l, --config-labels FILENAME    File with labels configuration.
-  --help                          Show this message and exit.
-----
+[source,console]
+$ export FLASK_APP=filabel.py
+$ flask run
 
-Jednotlivé poziční argumenty říkají aplikaci, které repozitáře má zkontrolovat.
-Zadávají se ve formátu „reposlug“ (`uživatel/název` případně `organizace/název`).
-Aplikace projde všechny PR ve všech zadaných repozitářích a oštítkuje je podle
-zadaných pravidel.
+Zároveň je možné pomocí proměnné prostředí nastavit,
+kde má aplikace hledat konfigurační soubor(y).
 
-=== Přepínače
+Pomocí proměnné `FILABEL_CONFIG` je možné nastavit cestu k jednomu konfiguračnímu souboru,
+nebo více souborům, oddělených dvojtečkou.
 
-`--state [open|closed|all]`::
-  Ve výchozím stavu se aplikace zabývá pouze otevřenými PR.
-  Pomocí tohoto přepínače to můžete změnit. Validní hodnoty jsou `open`,
-  `closed` a `all`. (GitHub API má na toto filtr.)
+V konfiguračních souborech hledáte sekce `github` a `labels`.
 
-`--delete-old`/`--no-delete-old`::
-  Pokud je zapnuto, staré štítky budou odstraněny. Ale *pozor*, budou
-  odstraněny pouze štítky, obsažené v konfiguraci. Aplikace nesmí odstranit
-  štítek, který „nezná“. Pokud je vypnuto, aplikace neodstraňuje žádné štítky,
-  pouze přidává nové. Ve výchozím stavu je zapnuto.
-  (GitHub API umí nastavit pouze cílový stav štítků, logika je zde na vás.)
+CLI aplikace z minulého týdne musí stále fungovat a testy z minula musí procházet.
 
-`--base BRANCH`::
-  Pokud je použito, aplikace zpracovává pouze PR proti zadané větvi.
-  Jinak zpracovává všechny. (GitHub API má na toto filtr.)
+=== Zabezpečení webhooku
 
-`--config-auth`::
-  Cesta ke konfiguračnímu souboru s tokenem.
-
-`--config-labels`::
-  Cesta ke konfiguračnímu souboru s pravidly na aplikaci štítků.
-  Pro obě konfigurace může být použit stejný soubor.
-
-
-=== Výstup
-
-Aplikace píše na výstup barevný text v následujícím formátu:
-
-image::screenshot.png[Screenshot]
-
-Nápisy `REPO`, `PR` a `OK` jsou tlustě. Nápis `OK` je zeleně.
-Štítky jsou zelené (ty s plusem, nově přidané), červené (ty s mínusem,
-nově odebrané) nebo výchozí barvou (ty s rovnítkem, aplikaci známé štítky,
-které tam již byly).
-
-Repozitáře jsou srovnány podle toho, jak je uživatel zadal.
-PR jsou srovnány podle toho, jak je ve výchozím stavu vrací GitHub API,
-a uvozeny 2 mezerami.
-Štítky jsou srovnány abecedně (podle názvu) a uvozeny 4 mezerami,
-symbolem a 1 mezerou.
-
-=== Chyby
-
-V případě, že uživatel nezadá přepínač na konfigurační soubory, vypište
-chybovou hlášku na standardní chybový výstup a ukončete aplikaci kódem 1.
+Protože příjímání událostí z internetu může být riskantní,
+nabízí GitHub možnost webhooky zabezpečit proti zneužiti.
+Abyste rozpoznali, že vám událost poslal právě GitHub,
+je ke každému requestu z GitHubu přiložená hlavička `X-Hub-Signature`, např:
 
 [source]
-Auth configuration not supplied!
+X-Hub-Signature: sha1=0b861d9a594a4f421cabcdef75d5aefc46df8967
 
-[source]
-Labels configuration not supplied!
+která vám říká,
+že pokud použijete HMAC hexdigest s odpovídající hash funkcí a s klíčem,
+který je uvedený v položce `secret`, na celé tělo requestu
+a vámi spočítaný výsledek se shoduje s tím v hlavičce `X-Hub-Signature`,
+tak tento request přišel z GitHubu, a můžete mu tedy veřit.
 
-V případě, že konfigurace není použitelná, zachovejte se stejně:
+Více informací a příklad v Ruby je na
+https://developer.github.com/webhooks/securing/[github securing].
 
-[source]
-Auth configuration not usable!
+Do konfigurančího souboru (sekce `github`) tedy přidejte položku `secret`.
+Při nastavování webhooku na GitHubu použijte stejný secret jako při nasazování aplikace.
 
-[source]
-Labels configuration not usable!
+== Automatické testy
 
-V případě, že jakýkoliv reposlug není validní (nelze podle jednoho lomítka
-rozdělit na 2 části), zachovejte se stejně (skončete ihned):
+Testy z minula stále musí procházet.
+Existuje i několik nových testů v souboru `test_web_smoke.py`.
 
-[source]
-Reposlug xxxx not valid!
+Pro spuštění pouze nových testů můžete použít:
 
-V případě, že nějaký repozitář nelze zpracovat (např. neexistuje), místo
-zeleného OK se u něj vypíše tučné červené FAIL. Seznam PR u něj logicky nebude.
+[source,console]
+$ python -m pytest -v -k web test
 
-V případě, že se štítkování nějaké PR jakkoliv nezdaří,
-vypíše se také červené FAIL.
-*Pozor,* zda máte práva přidat štítky, se dozvíte jedině tak, že ověříte,
-že se to podařilo. GitHub API vrací při změně štítků i informace o štítkách.
+Pro nové testy není třeba speciální setup z minula.
 
-Barevné výpisy FAIL piště na standardní výstup.
+WARNING: Testy **netestují hlavní funkcionalitu aplikace**,
+ale pouze přidružené věci, jako importovatelnost,
+přítomnost usernamu na hlavní stránce,
+ping, ověření „secret“.
+Ujistěte se, že vaše nasazená aplikace funguje, jak má.
 
-NOTE: Přepínače `--config-auth` a `--config-labels`
-můžete nastavit jako povinné.
+Následuje text z minula, který stále platí:
 
-== Testy
-
-K úloze existuje sada testů.
-Pro jejich spuštění nainstalujte do virtuálního prostředí balík `pytest`.
+Pro spuštění testů nainstalujte do virtuálního prostředí balík `pytest`.
 
 Testy vyžadují určitý setup repozitářů. Pro jeho vytvoření použijte skript
 `test_environment/setup.sh`. Je třeba nastavit proměnné prostředí
@@ -217,10 +152,5 @@ Barevnost kontrolujte očima.
 
 == Odevzdání úkolu
 
-Odkaz na repozitář s aplikací nám pošlete e-mailem.
-Pro odevzdání v repozitáři nastavte tag `v0.1`.
-
-Termín odevzdání je u této úlohy mimořádně v pondělí (včetně) za 19 dní,
-termín je tedy shodný s příští úlohou.
-Důrazně však doporučujeme odevzdat ji dříve,
-jelikož další úloha na tuto navazuje a chyb v začátku se špatně zbavuje.
+Odkazy na repozitář a běžící aplikaci nám pošlete e-mailem.
+Pro odevzdání v repozitáři nastavte tag `v0.2`.
