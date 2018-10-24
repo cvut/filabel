@@ -19,8 +19,7 @@ Pokud svůj kód za žádných okolností nechcete zveřejnit ani na testovací 
 dejte nám vědět a domluvíme se.
 
 NOTE: Pokud jste předchozí úkoly nedělali a nebo neprochází testy,
-můžete použít naše referenční řešení.
-Tady na něj bude odkaz, až nastane vhodný čas.
+můžete použít https://github.com/cvut/filabel/releases/tag/v0.2[naše referenční řešení].
 
 Podmínky (je jich hodně, ale jsou triviální):
 
