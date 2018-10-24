@@ -32,7 +32,7 @@ Podmínky (je jich hodně, ale jsou triviální):
 ** Jméno importovatelného modulu musí být `filabel` a všechny další pomocné
    moduly musí být jeho podmoduly.
 ** Všechny soubory `+__init__.py+` mají být víceméně prázdné a obsahovat pouze
-   importy, případně nastavovat `+_all__+`.
+   importy, případně nastavovat `+__all__+`.
 * Hlavní program musí jít spouštět pomocí entrypointu `filabel` i pomocí `-m filabel`.
 * Stále se musí dát z modulu `filabel` přímo importovat Flask `app` (či `create_app`).
 * Pokud jste již tak neučinili, tak rozdělte aplikaci na jednotlivé
