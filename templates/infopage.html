@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <div id="intro">
+        <h2>Introduction</h2>
+
+        <p>This simple service uses GitHub webhooks to catch updates of pull requests (PRs) and update the labels of that PR by matching changes files with preconfigured patterns. It is mainly homework for MI-PYT course, but can be actually quite useful although it consists only of this info page (<code>GET /</code>) and webhook listener (<code>POST /</code>).</p>
+    </div>
+    <div id="labels">
+        <h2>Labeling of Pull Requests</h2>
+
+        <p>Pull Requests will be labeled by user: <code>{{ user|github_user_link }}</code></p>
+
+        {% for label, patterns in labels.items() %}
+            <ul>
+                <li>{{ label }}
+                    <ul>
+                        {% for pattern in patterns %}
+                            <li><code>{{ pattern }}</code></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+        {% endfor %}
+    </div>
+    <div id="usage">
+        <h2>Service usage</h2>
+
+        <p>To manage PRs of your repo by this service you need to know configured <em>webhook secret</em>, then just:</p>
+
+        <ol>
+            <li>Go to your repository settings at GitHub</li>
+            <li>Pick <em>webhooks</em> from left menu</li>
+            <li>Press <em>Add webhook</em></li>
+            <li>Create webhook with configuration below and press <em>Add webhook</em></li>
+        </ol>
+
+        <h3>Webhook configuration</h3>
+
+        <dl>
+            <dt>Payload URL</dt>
+            <dd>{{ request.url }}</dd>
+            <dt>Content type</dt>
+            <dd>application/json</dd>
+            <dt>Secret</dt>
+            <dd><em>webhook secret</em> (cannot be published)</dd>
+            <dt>Which events would you like to trigger this webhook?</dt>
+            <dd>Let me select individual events: <strong>Pull requests</strong></dd>
+            <dt>Active</dt>
+            <dd>Yes</dd>
+        </dl>
+    </div>
+{% endblock %}
