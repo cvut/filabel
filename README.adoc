@@ -6,63 +6,49 @@
 Tool for labeling PRs at GitHub by globs.
 
 
-== Zadání úkolu 3
+== Zadání úkolu 4
 
-Vaším úkolem za 5 bodů je udělat z vašeho dosavadního projektu balíček
-instalovatelný přes pip a nahrát jej na testovací PyPI.
+Vaším úkolem za 5 bodů je rozšířit testy k dosavadní úloze `filabel` pomocí
+pytestu. Není nutné použít ``flexmock``, pokud to nepotřebujete. Využití ``betamax``u
+je silně doporučeno.
 
-Jelikož používáme všichni stejný název aplikace `filabel`,
-tak pro PyPI použijte jako název `filabel_<username>`
-(v reálných situacích se nedoporučuje jiný název než je jméno importovatelného modulu).
-
-Pokud svůj kód za žádných okolností nechcete zveřejnit ani na testovací PyPI,
-dejte nám vědět a domluvíme se.
+Námi dodávané testy jsou tz. _akceptační_, skoro až _integrační_. Testují aplikaci
+z venku, jako black box a navíc proti živému API. Rozšiřte testovací sadu o testy
+_jednotkové_: tedy testy, které testují vaše vlastní metody, funkce, třídy apod.
+Vaše testy již nesmí komunikovat s reálným GitHub API.
 
 NOTE: Pokud jste předchozí úkoly nedělali a nebo neprochází testy,
-můžete použít https://github.com/cvut/filabel/releases/tag/v0.2[naše referenční řešení].
+můžete použít https://github.com/cvut/filabel/tree/v0.3[naše referenční řešení].
 
-Podmínky (je jich hodně, ale jsou triviální):
+=== Podmínky:
 
-* Váš balíček musí fungovat (viz zadání předchozích úkolů)
-  po instalaci pomocí pipu do „prázdného“ virtuálního prostředí.
-  Musí tedy mít správně nadefinované všechny závislosti.
-* Musí obsahovat rozumný počet classsifiers a voleb pro `setup.py`.
-* Podpříkazy `sdist` a `bdist_wheel` nesmí skončit chybou ani vyvolat varování.
-* Musí splňovat konvence uvedené ve výukových materiálech:
-** Jméno importovatelného modulu musí být `filabel` a všechny další pomocné
-   moduly musí být jeho podmoduly.
-** Všechny soubory `+__init__.py+` mají být víceméně prázdné a obsahovat pouze
-   importy, případně nastavovat `+__all__+`.
-* Hlavní program musí jít spouštět pomocí entrypointu `filabel` i pomocí `-m filabel`.
-* Stále se musí dát z modulu `filabel` přímo importovat Flask `app` (či `create_app`).
-* Pokud jste již tak neučinili, tak rozdělte aplikaci na jednotlivé
-  funkční celky. Měli byste mít alespoň 3 submoduly, například:
-** `cli` - vstup + výpis na konzoli z prvního úkolu,
-** `web` - flask aplikace,
-** `github` - klient pro komunikaci s GitHub API (společný pro `cli` a
-`web`),
-** případně navíc ještě oddělit logiku práce se štítky či další.
-** (Pamatujte že v Pythonu není nutné každou třídu dávat do zvláštního souboru.
-   Také připomínáme, že https://www.python.org/dev/peps/pep-0020/[Flat is better than nested],
-   není tedy vhodné moduly do sebe nořit příliš hluboko.)
-** Vyvarujte se cyklických importů!
-* Zabalený modul musí obsahovat soubor s textem licence (`LICENSE`, `COPYING`) +*+
-* `long_description` musí být dynamicky načten z `README`
+* Musí fungovat `setup.py test` a to nejen z gitu, ale i při rozbalení archivu
+  `sdist`.
+* Všechny testovací závislosti se musí při uvedeném příkazu nainstalovat.
+** Je nutné správně rozlišit testovací a runtime závislosti.
+* Testy samotné musí fungovat offline a bez nutnosti mít přístupové údaje k API.
+* Spuštění testů i znovu-nahrání kazet musí být zdokumentováno v `README`. Je nutné umožnit všem znovunahrát kazety (tedy i lidem, kteří nemají přístup k vašemu GitHub účtu). Pro (znovu)vytvoření situace pro nahrání kazet můžete (ale nemusíte) použít (či upravit) skript `setup.sh` z našich současných testů.
+* Nahrané kazety musí být v gitu a být součástí balíčku (ale neinstalují se).
+* Žádné nahrané kazety (ani jiné soubory) nesmí obsahovat citlivé údaje.
+* Alespoň část testu by měla být parametrická.
+* Musí být použit nativní způsob pytest testů (pytest umí spouštět i testy pro
+  `unittest` apod.).
+* Testuje se všechno ++*++.
+* Testy musí běžet i na Travis CI (případně jiném veřejném CI).
 
-+*+ Vhodnou licenci můžete najít na http://choosealicense.com/[choosealicense.com].
-V případě, že váš kód nechcete šířit pod svobodnou licencí,
-napište to do souboru vlastní podmínky. Nevymýšlejte si ale prosím vlastní
-open-source licence.
++*+ Záměrně nestanovujeme podmínku na 100% pokrytí kódu testy.
+Otestujte prostě kód tak, aby byly otestovány všechny podstatné součásti
+včetně webové aplikace.
 
 == Automatické testy
 
-Testy z minula byly mírně upraveny, aby nevolaly `python filabel.py` přímo,
-ale příkaz `filabel`,
-navíc byly přidány jednoduché testy, které volají `python -m filabel`.
+Námi dodané testy z minulých úloh jsou stále závazné, můžete (ale nemusíte) je
+přibalit k vašim testům, ale musí být odděleny (například jiná složka).
+
+Následuje text z minula, který stále platí:
 
 WARNING: Testy **netestují splnění tohoto úkolu**,
-Testují pouze to, že se nic nerozbilo
-a že funguje spuštění pomocí příkazů výše.
+Testují pouze to, že se nic nerozbilo.
 
 NOTE: Před spuštěním testů předpokládejte, že je váš balíček nainstalován.
 Toho můžete docílit například pomocí `pyhton setup.py develop`
@@ -75,13 +61,11 @@ klíčová slova a další metadata). Tyto testy vyžadují nastavené proměnn�
 `CTU_USERNAME` a `FILABEL_REPO` pro získání vaší verze filabelu (pipem a gitem). V rámci
 testů spouští subprocesy a pokud se na vašem OS jmenují jinak nebo jsou v jiné cestě, než
 standardně na Linuxu, budete muset upravit soubor `fixtures/test_config.cfg`. V případě
-potřeby založte issue. Tyto testy nepracují s aktuálním kódem „kolem nich“, ale s tím, co
+potřeby založte issue. Tyto testy nepracují s aktuálním kódem "kolem" nich, ale s tím, co
 je dostupné přes PyPI (publikováno) a GitHub (napushováno). Testy spustíte pomocí:
 
 [source,console]
 $ python -m pytest -v test_module
-
-Následuje text z minula, který stále platí:
 
 Pro spuštění testů nainstalujte do virtuálního prostředí balík `pytest`.
 
@@ -132,5 +116,5 @@ Barevnost kontrolujte očima.
 
 == Odevzdání úkolu
 
-Odkazy na repozitář a balíček na testovací PyPI nám pošlete e-mailem.
-Pro odevzdání v repozitáři nastavte tag `v0.3`.
+Úkol odevzdáváte tradičně s tagem `v0.4` a nahráním nové verze na (testovací
+či pravou) PyPI. Použijte verzi 0.4 (případně 0.4.x v souladu s tagem).
