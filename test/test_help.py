@@ -7,13 +7,18 @@ stdout = hlp.stdout
 
 
 def test_usage():
-    assert stdout.startswith('Usage: filabel.py [OPTIONS] [REPOSLUGS]...')
+    assert stdout.startswith('Usage: filabel [OPTIONS] [REPOSLUGS]...')
 
 
 def test_description():
     assert (
         'CLI tool for filename-pattern-based labeling of GitHub PRs' in stdout
     )
+
+
+def test_help_when_m():
+    hlp = run('--help', module=True)
+    assert 'CLI tool for filename-pattern-based' in hlp.stdout
 
 
 def test_state():
