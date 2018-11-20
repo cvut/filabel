@@ -6,52 +6,65 @@
 Tool for labeling PRs at GitHub by globs.
 
 
-== Zadání úkolu 4
+== Zadání úkolu 5
 
-Vaším úkolem za 5 bodů je rozšířit testy k dosavadní úloze `filabel` pomocí
-pytestu. Není nutné použít ``flexmock``, pokud to nepotřebujete. Využití ``betamax``u
-je silně doporučeno.
+Vaším úkolem za 5 bodů je vytvořit pomocí http://www.sphinx-doc.org[Sphinx] 
+dokumentaci k vašemu projektu `filabel`.
 
-Námi dodávané testy jsou tz. _akceptační_, skoro až _integrační_. Testují aplikaci
-z venku, jako black box a navíc proti živému API. Rozšiřte testovací sadu o testy
-_jednotkové_: tedy testy, které testují vaše vlastní metody, funkce, třídy apod.
-Vaše testy již nesmí komunikovat s reálným GitHub API.
+Měla by obsahovat textovou část, ze které bude jasné, co je, k čemu je,
+jak se nainstaluje a jak se používá vaše aplikace. Můžete předpokládat, že
+uživatel ví, co je to GitHub, issue, pull request, label, repozitář apod.
+Nepředpokládejte ale, že ví, kde najde API token či webhook, že ví, co to je,
+jak se k nim chovat apod.
 
-NOTE: Pokud jste předchozí úkoly nedělali a nebo neprochází testy,
-můžete použít https://github.com/cvut/filabel/tree/v0.3[naše referenční řešení].
+Pokud hypoteticky ukážeme dokumentaci kolegům, kteří nikdy neviděli zadání
+vašeho úkolu, musí to pro ně být stejně pochopitelné.
 
-=== Podmínky:
+Dále by dokumentace měla obsahovat textovou část s ukázkami kódu, které se
+testují pomocí doctestu. Tato část může vysvětlovat, jak váš kód použít pro
+výrobu jiné aplikace, nebo může popisovat, jak aplikace uvnitř funguje.
 
-* Musí fungovat `setup.py test` a to nejen z gitu, ale i při rozbalení archivu
-  `sdist`.
-* Všechny testovací závislosti se musí při uvedeném příkazu nainstalovat.
-** Je nutné správně rozlišit testovací a runtime závislosti.
-* Testy samotné musí fungovat offline a bez nutnosti mít přístupové údaje k API.
-* Spuštění testů i znovu-nahrání kazet musí být zdokumentováno v `README`. Je nutné umožnit všem znovunahrát kazety (tedy i lidem, kteří nemají přístup k vašemu GitHub účtu). Pro (znovu)vytvoření situace pro nahrání kazet můžete (ale nemusíte) použít (či upravit) skript `setup.sh` z našich současných testů.
-* Nahrané kazety musí být v gitu a být součástí balíčku (ale neinstalují se).
-* Žádné nahrané kazety (ani jiné soubory) nesmí obsahovat citlivé údaje.
-* Alespoň část testu by měla být parametrická.
-* Musí být použit nativní způsob pytest testů (pytest umí spouštět i testy pro
-  `unittest` apod.).
-* Testuje se všechno ++*++.
-* Testy musí běžet i na Travis CI (případně jiném veřejném CI).
+V dokumentaci by měla existovat kapitola s *kompletní* API dokumentací vašich
+modulů, tříd, funkcí apod. Všechny tyto věci musí mít v kódu dokumentační
+řetězce, které v dokumentaci musí být zobrazeny (t.j. změna dokumentačního
+řetězce se automaticky promítne ve vygenerované dokumentaci).
 
-+*+ Záměrně nestanovujeme podmínku na 100% pokrytí kódu testy.
-Otestujte prostě kód tak, aby byly otestovány všechny podstatné součásti
-včetně webové aplikace.
+Jak sestavit a testovat dokumentaci by mělo být jasné z `README.rst`
+(a to musí mít http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html[reStructuredText]
+syntaxi).
+
+Generování dokumentace ani doctesty nesmí způsobit chybu ani varování.
+Potlačení chybových a varovných hlášek (např. konfigurací, přesměrováním
+*stderr*, apod.) je povoleno jen po konzultaci s cvičícím.
+
+Na Travis CI spouštějte dokumentační testy.
+
+Dokumentace musí být v angličtině.
+
+Dosavadní funkcionalita aplikace musí být samozřejmě zachována.
+
+Úkol odevzdáváte tradičně ve svém repozitáři pro projekt `filabel` s tagem `v0.5` 
+a nahráním nové verze na (testovací či pravou) PyPI.
+_(Nahrání je nutné – čtenář dokumentace k verzi 0.5 se bude dívat po balíčku
+této verze.)_
+
+Za fungující publikaci smysluplné dokumentace na https://readthedocs.org/[Read the Docs]
+je bod navíc.
+
 
 == Automatické testy
 
-Námi dodané testy z minulých úloh jsou stále závazné, můžete (ale nemusíte) je
-přibalit k vašim testům, ale musí být odděleny (například jiná složka).
+Veškeré dodané testy z minulých úkolů série `filabel` včetně vašich vlastních
+testů musí stále procházet.
 
 Následuje text z minula, který stále platí:
 
 WARNING: Testy **netestují splnění tohoto úkolu**,
-Testují pouze to, že se nic nerozbilo.
+Testují pouze to, že se nic nerozbilo
+a že funguje, co dříve fungovalo.
 
 NOTE: Před spuštěním testů předpokládejte, že je váš balíček nainstalován.
-Toho můžete docílit například pomocí `pyhton setup.py develop`
+Toho můžete docílit například pomocí `python setup.py develop`
 nebo `pip install -e.`
 
 Nově jsou dodány extra testy ve složce `test_module`, které simulují reálnou instalaci
@@ -61,7 +74,7 @@ klíčová slova a další metadata). Tyto testy vyžadují nastavené proměnn�
 `CTU_USERNAME` a `FILABEL_REPO` pro získání vaší verze filabelu (pipem a gitem). V rámci
 testů spouští subprocesy a pokud se na vašem OS jmenují jinak nebo jsou v jiné cestě, než
 standardně na Linuxu, budete muset upravit soubor `fixtures/test_config.cfg`. V případě
-potřeby založte issue. Tyto testy nepracují s aktuálním kódem "kolem" nich, ale s tím, co
+potřeby založte issue. Tyto testy nepracují s aktuálním kódem „kolem nich“, ale s tím, co
 je dostupné přes PyPI (publikováno) a GitHub (napushováno). Testy spustíte pomocí:
 
 [source,console]
@@ -116,5 +129,5 @@ Barevnost kontrolujte očima.
 
 == Odevzdání úkolu
 
-Úkol odevzdáváte tradičně s tagem `v0.4` a nahráním nové verze na (testovací
-či pravou) PyPI. Použijte verzi 0.4 (případně 0.4.x v souladu s tagem).
+Odkazy na repozitář a balíček na testovací PyPI nám pošlete e-mailem.
+Pro odevzdání v repozitáři nastavte tag `v0.5`.
