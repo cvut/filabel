@@ -48,3 +48,9 @@ def test_config_labels():
     assert re.search(r'-l,\s+--config-labels\s+FILENAME\s+'
                      r'File with labels\s+configuration\.',
                      stdout)
+
+
+def test_async():
+    assert re.search(r'-x,\s+--async\s+'
+                     r'Use asynchronnous \(faster|\) logic\.',
+                     stdout)
